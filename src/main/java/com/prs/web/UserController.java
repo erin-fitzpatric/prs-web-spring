@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 
+import com.prs.web.JsonResponse;
 import com.prs.business.User;
 import com.prs.db.UserRepository;
 
@@ -41,6 +42,20 @@ public class UserController {
 		return jr;
 	}
 
+	// login
+	@PostMapping("/login")
+	public JsonResponse addLogin(@RequestBody User u) {
+		JsonResponse jr = null;
+		try {
+			jr = JsonResponse.getInstance(userRepo.findByUserNameAndPassword(u.getUserName(), u.getPassword()));
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+			e.printStackTrace();
+		}
+		return jr;
+	}
+	
+	
 	// add - adds a new User
 	@PostMapping("/")
 	public JsonResponse addUser(@RequestBody User u) {

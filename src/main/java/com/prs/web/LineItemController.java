@@ -1,12 +1,15 @@
 package com.prs.web;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 
 import com.prs.business.LineItem;
+import com.prs.business.Product;
+import com.prs.business.Request;
 import com.prs.db.LineItemRepository;
-
 
 @CrossOrigin
 @RestController
@@ -42,6 +45,19 @@ public class LineItemController {
 		return jr;
 	}
 
+	// get - list line items for a PR TODO
+	@GetMapping("/lines-for-pr/{id}")
+	public JsonResponse getAllLineItems(@PathVariable int id) {
+		JsonResponse jr = null;
+		try {
+			jr = JsonResponse.getInstance(lineItemRepo.findByRequestId(id));
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+			e.printStackTrace();
+		}
+		return jr;
+	}
+
 	// add - adds a new lineItem
 	@PostMapping("/")
 	public JsonResponse addLineItem(@RequestBody LineItem l) {
@@ -49,6 +65,7 @@ public class LineItemController {
 		JsonResponse jr = null;
 		try {
 			jr = JsonResponse.getInstance(lineItemRepo.save(l));
+			recalculateTotal(l.getRequest().getId());
 		} catch (DataIntegrityViolationException dive) {
 			jr = JsonResponse.getInstance(dive.getRootCause().getMessage());
 			dive.printStackTrace();
@@ -100,5 +117,16 @@ public class LineItemController {
 			e.printStackTrace();
 		}
 		return jr;
+	}
+
+	private void recalculateTotal(int id) {
+		double total = 0;
+		List<LineItem> lines = lineItemRepo.findByRequestId(id);
+		for (LineItem line : lines) {
+			Product p = line.getProduct();
+			double lineTotal = line.getQuantity() * (p.getPrice());
+			total += lineTotal;
+			// TODO NEED TO SAVE THE TOTAL IN REPO
+		}
 	}
 }
