@@ -10,6 +10,7 @@ import com.prs.business.LineItem;
 import com.prs.business.Product;
 import com.prs.business.Request;
 import com.prs.db.LineItemRepository;
+import com.prs.db.RequestRepository;
 
 @CrossOrigin
 @RestController
@@ -18,7 +19,9 @@ import com.prs.db.LineItemRepository;
 public class LineItemController {
 	@Autowired
 	private LineItemRepository lineItemRepo;
-
+	@Autowired
+	private RequestRepository requestRepo;
+	
 	// list - return all lineItems
 	@GetMapping("/")
 	public JsonResponse listLineItems() {
@@ -45,7 +48,7 @@ public class LineItemController {
 		return jr;
 	}
 
-	// get - list line items for a PR TODO
+	// get - list line items for a PR 
 	@GetMapping("/lines-for-pr/{id}")
 	public JsonResponse getAllLineItems(@PathVariable int id) {
 		JsonResponse jr = null;
@@ -65,7 +68,7 @@ public class LineItemController {
 		JsonResponse jr = null;
 		try {
 			jr = JsonResponse.getInstance(lineItemRepo.save(l));
-			recalculateTotal(l.getRequest().getId());
+//			recalculateTotal(l.getRequest().getId());
 		} catch (DataIntegrityViolationException dive) {
 			jr = JsonResponse.getInstance(dive.getRootCause().getMessage());
 			dive.printStackTrace();
@@ -119,14 +122,18 @@ public class LineItemController {
 		return jr;
 	}
 
-	private void recalculateTotal(int id) {
-		double total = 0;
-		List<LineItem> lines = lineItemRepo.findByRequestId(id);
-		for (LineItem line : lines) {
-			Product p = line.getProduct();
-			double lineTotal = line.getQuantity() * (p.getPrice());
-			total += lineTotal;
-			// TODO NEED TO SAVE THE TOTAL IN REPO
-		}
-	}
+//	private void recalculateTotal(int id) {
+//		double total = 0;
+//		List<LineItem> lines = lineItemRepo.findByRequestId(id);
+//		for (LineItem line : lines) {
+//			Product p = line.getProduct();
+//			double lineTotal = line.getQuantity() * (p.getPrice());
+//			total += lineTotal;
+//			// TODO NEED TO SAVE THE TOTAL IN REPO
+//			Request r = new Request();
+//			r.setTotal(total);
+//			requestRepo.save(r);
+//			System.out.println(r.getTotal());
+//		}
+//	}
 }

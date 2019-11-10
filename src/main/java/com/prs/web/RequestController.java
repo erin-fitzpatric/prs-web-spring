@@ -1,13 +1,13 @@
 package com.prs.web;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 
-
 import com.prs.business.Request;
 import com.prs.db.RequestRepository;
-
 
 @CrossOrigin
 @RestController
@@ -28,6 +28,19 @@ public class RequestController {
 		}
 		return jr;
 	}
+
+//	// get - request review TODO
+//	@GetMapping("/list-review/{id}") 
+//	public JsonResponse requestReview() {
+//		JsonResponse jr = null;
+//		try {
+//			jr = JsonResponse.getInstance(requestRepo.findAll());
+//		} catch (Exception e) {
+//			jr = JsonResponse.getInstance(e);
+//			e.printStackTrace();
+//		}
+//		return jr;
+//	}
 
 	// get - return 1 request for the given id
 	@GetMapping("/{id}")
@@ -59,11 +72,33 @@ public class RequestController {
 		return jr;
 	}
 
+	
+	// put - submit review ??? Post mapping??? TODO 
+	@PutMapping("/submit-review")
+	public JsonResponse submitForReview(@RequestBody Request r) {
+		JsonResponse jr = null;
+		// status automatically approves for items <= 50
+		if (r.getTotal() <= 50) {
+			r.setStatus("Approved");
+		} else {
+			r.setStatus("Review");
+		}
+		// set submitted date to local current time
+		r.setSubmittedDate(LocalDateTime.now());
+		try {
+			jr = JsonResponse.getInstance(requestRepo.save(r));
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
+	}
+
 	// update - update a new Request
 	@PutMapping("/")
 	public JsonResponse updateRequest(@RequestBody Request r) {
 		// update a request
 		JsonResponse jr = null;
+		r.setStatus("New");
 		try {
 			if (requestRepo.existsById(r.getId())) {
 				jr = JsonResponse.getInstance(requestRepo.save(r));

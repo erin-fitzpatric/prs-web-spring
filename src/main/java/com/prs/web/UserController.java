@@ -48,7 +48,12 @@ public class UserController {
 		JsonResponse jr = null;
 		try {
 			jr = JsonResponse.getInstance(userRepo.findByUserNameAndPassword(u.getUserName(), u.getPassword()));
-		} catch (Exception e) {
+		} 
+		catch (DataIntegrityViolationException dive) {
+			jr = JsonResponse.getInstance(dive.getRootCause().getMessage());
+			dive.printStackTrace();
+		}
+		catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
 			e.printStackTrace();
 		}
