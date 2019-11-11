@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.prs.business.Request;
 import com.prs.db.RequestRepository;
+import com.prs.db.UserRepository;
 
 @CrossOrigin
 @RestController
@@ -15,6 +16,8 @@ import com.prs.db.RequestRepository;
 public class RequestController {
 	@Autowired
 	private RequestRepository requestRepo;
+	@Autowired
+	private UserRepository userRepo;
 
 	// list - return all requests
 	@GetMapping("/")
@@ -29,19 +32,6 @@ public class RequestController {
 		return jr;
 	}
 
-//	// get - request review TODO
-//	@GetMapping("/list-review/{id}") 
-//	public JsonResponse requestReview() {
-//		JsonResponse jr = null;
-//		try {
-//			jr = JsonResponse.getInstance(requestRepo.findAll());
-//		} catch (Exception e) {
-//			jr = JsonResponse.getInstance(e);
-//			e.printStackTrace();
-//		}
-//		return jr;
-//	}
-
 	// get - return 1 request for the given id
 	@GetMapping("/{id}")
 	public JsonResponse getRequest(@PathVariable int id) {
@@ -55,12 +45,26 @@ public class RequestController {
 		return jr;
 	}
 
-	// add - adds a new Request
+	// Get - request review 
+	@GetMapping("/list-view/{id}")
+	public JsonResponse reviewRequest(@PathVariable int id) {
+		JsonResponse jr = null;
+		try {
+			jr = JsonResponse.getInstance(requestRepo.findByUserNotAndStatus(userRepo.findById(id).get(), "Review"));
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+			e.printStackTrace();
+		}
+		return jr;
+	}
+
+	// Post - adds a new Request
 	@PostMapping("/")
 	public JsonResponse addRequest(@RequestBody Request r) {
 		// add a new Request
 		JsonResponse jr = null;
 		try {
+			r.setStatus("New");
 			jr = JsonResponse.getInstance(requestRepo.save(r));
 		} catch (DataIntegrityViolationException dive) {
 			jr = JsonResponse.getInstance(dive.getRootCause().getMessage());
@@ -72,8 +76,7 @@ public class RequestController {
 		return jr;
 	}
 
-	
-	// put - submit review ??? Post mapping??? TODO 
+	// put - submit review 
 	@PutMapping("/submit-review")
 	public JsonResponse submitForReview(@RequestBody Request r) {
 		JsonResponse jr = null;
@@ -86,6 +89,34 @@ public class RequestController {
 		// set submitted date to local current time
 		r.setSubmittedDate(LocalDateTime.now());
 		try {
+			jr = JsonResponse.getInstance(requestRepo.save(r));
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
+	}
+
+	// put - reject a request
+	@PutMapping("/reject")
+	public JsonResponse rejectRequest(@RequestBody Request r) {
+		JsonResponse jr = null;
+		// set status to rejected
+		try {
+			r.setStatus("Rejected");
+			jr = JsonResponse.getInstance(requestRepo.save(r));
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
+	}
+
+	// put - approve a request
+	@PutMapping("/approve")
+	public JsonResponse approveRequest(@RequestBody Request r) {
+		JsonResponse jr = null;
+		// set status to rejected
+		try {
+			r.setStatus("Approved");
 			jr = JsonResponse.getInstance(requestRepo.save(r));
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);

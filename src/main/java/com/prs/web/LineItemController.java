@@ -49,11 +49,11 @@ public class LineItemController {
 	}
 
 	// get - list line items for a PR 
-	@GetMapping("/lines-for-pr/{id}")
-	public JsonResponse getAllLineItems(@PathVariable int id) {
+	@GetMapping("/lines-for-pr/{prId}")
+	public JsonResponse getAllLineItems(@PathVariable int prId) {
 		JsonResponse jr = null;
 		try {
-			jr = JsonResponse.getInstance(lineItemRepo.findByRequestId(id));
+			jr = JsonResponse.getInstance(lineItemRepo.findByRequestId(prId));
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
 			e.printStackTrace();
@@ -68,7 +68,7 @@ public class LineItemController {
 		JsonResponse jr = null;
 		try {
 			jr = JsonResponse.getInstance(lineItemRepo.save(l));
-//			recalculateTotal(l.getRequest().getId());
+			recalculateTotal(l.getRequest().getId());
 		} catch (DataIntegrityViolationException dive) {
 			jr = JsonResponse.getInstance(dive.getRootCause().getMessage());
 			dive.printStackTrace();
@@ -87,6 +87,7 @@ public class LineItemController {
 		try {
 			if (lineItemRepo.existsById(l.getId())) {
 				jr = JsonResponse.getInstance(lineItemRepo.save(l));
+				recalculateTotal(l.getRequest().getId());
 			} else {
 				// record doesn't exist
 				jr = JsonResponse.getInstance("Error updating Line Item.  id: " + l.getId() + " doesn't exist!");
@@ -105,8 +106,9 @@ public class LineItemController {
 		JsonResponse jr = null;
 		try {
 			if (lineItemRepo.existsById(id)) {
+				LineItem l = lineItemRepo.findById(id).get();
 				lineItemRepo.deleteById(id);
-				;
+				recalculateTotal(l.getRequest().getId());
 				jr = JsonResponse.getInstance("Delete succesful!");
 			} else {
 				// record doesn't exist
@@ -122,18 +124,15 @@ public class LineItemController {
 		return jr;
 	}
 
-//	private void recalculateTotal(int id) {
-//		double total = 0;
-//		List<LineItem> lines = lineItemRepo.findByRequestId(id);
-//		for (LineItem line : lines) {
-//			Product p = line.getProduct();
-//			double lineTotal = line.getQuantity() * (p.getPrice());
-//			total += lineTotal;
-//			// TODO NEED TO SAVE THE TOTAL IN REPO
-//			Request r = new Request();
-//			r.setTotal(total);
-//			requestRepo.save(r);
-//			System.out.println(r.getTotal());
-//		}
-//	}
+	private void recalculateTotal(int requestID) {
+		double total = 0.0;
+		Request r = requestRepo.findById(requestID).get();
+		List<LineItem> lines = lineItemRepo.findByRequestId(requestID);
+		for (LineItem line : lines) {
+			Product p = line.getProduct();
+			total += p.getPrice()*line.getQuantity();
+		}
+		r.setTotal(total);
+		requestRepo.save(r);
+	}
 }

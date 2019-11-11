@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import com.prs.business.Product;
 import com.prs.db.ProductRepository;
 
-
 @CrossOrigin
 @RestController
 @RequestMapping("/products")
@@ -85,7 +84,6 @@ public class ProductController {
 		try {
 			if (productRepo.existsById(id)) {
 				productRepo.deleteById(id);
-				;
 				jr = JsonResponse.getInstance("Delete succesful!");
 			} else {
 				// record doesn't exist

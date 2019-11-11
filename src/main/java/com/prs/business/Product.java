@@ -12,7 +12,7 @@ public class Product {
 	private Vendor vendor;
 	private String partNumber;
 	private String name;
-	private Double price;
+	private double price;
 	private String unit;
 	private String photoPath;
 	
@@ -20,7 +20,7 @@ public class Product {
 		super();
 	}
 
-	public Product(int id, Vendor vendor, String partNumber, String name, Double price, String unit, String photoPath) {
+	public Product(int id, Vendor vendor, String partNumber, String name, double price, String unit, String photoPath) {
 		super();
 		this.id = id;
 		this.vendor = vendor;
@@ -63,11 +63,11 @@ public class Product {
 		this.name = name;
 	}
 
-	public Double getPrice() {
+	public double getPrice() {
 		return price;
 	}
 
-	public void setPrice(Double price) {
+	public void setPrice(double price) {
 		this.price = price;
 	}
 

@@ -1,7 +1,5 @@
 package com.prs.db;
 
-import java.util.List;
-
 import org.springframework.data.repository.CrudRepository;
 
 import com.prs.business.User;
