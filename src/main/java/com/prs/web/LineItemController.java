@@ -105,7 +105,7 @@ public class LineItemController {
 		// delete a lineItem
 		JsonResponse jr = null;
 		try {
-			if (lineItemRepo.existsById(id)) {
+			if (lineItemRepo.existsById(id)) {		
 				LineItem l = lineItemRepo.findById(id).get();
 				lineItemRepo.deleteById(id);
 				recalculateTotal(l.getRequest().getId());
@@ -124,14 +124,18 @@ public class LineItemController {
 		return jr;
 	}
 
+	// method will recalculate total and save it in the user instance  
 	private void recalculateTotal(int requestID) {
-		double total = 0.0;
-		Request r = requestRepo.findById(requestID).get();
+		// get a list of line items 
 		List<LineItem> lines = lineItemRepo.findByRequestId(requestID);
+		// loop through list to get a sum of total
+		double total = 0.0;
 		for (LineItem line : lines) {
 			Product p = line.getProduct();
 			total += p.getPrice()*line.getQuantity();
 		}
+		// save that total in the instance of request
+		Request r = requestRepo.findById(requestID).get();
 		r.setTotal(total);
 		requestRepo.save(r);
 	}

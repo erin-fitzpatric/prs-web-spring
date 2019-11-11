@@ -46,7 +46,7 @@ public class RequestController {
 	}
 
 	// Get - request review 
-	@GetMapping("/list-view/{id}")
+	@GetMapping("/list-review/{id}")
 	public JsonResponse reviewRequest(@PathVariable int id) {
 		JsonResponse jr = null;
 		try {

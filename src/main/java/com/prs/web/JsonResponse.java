@@ -6,6 +6,7 @@ public class JsonResponse {
 	private Object data = null;
     private Object errors = null;
     private Object meta = null;
+    
     // Good response - single or multiple resource(s)
     public JsonResponse(Object d) {
         data = d;
